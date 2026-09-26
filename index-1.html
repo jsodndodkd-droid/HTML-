@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Bilal &amp; Kokab 💍</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --pink: #ff6fa3; --pink2: #ff9ecb; --purple: #a86bf7; --gold: #ffc84a; --red: #ff5c7a; --green: #33b17a;
+    --text: #4a1f3d; --paper: #fffdfb;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) { --text: #fff0f5; --paper: #3a1d33; }
+  }
+  :root[data-theme="dark"] { --text: #fff0f5; --paper: #3a1d33; }
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); scroll-behavior: smooth; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100%; color: var(--text);
+    font-family: 'Quicksand', sans-serif; overflow-x: hidden; position: relative;
+    background: linear-gradient(-45deg, #ffb3c6, #ffd4a3, #ffb3c6, #d9b3ff, #ffb3c6);
+    background-size: 400% 400%;
+    animation: gradientShift 14s ease infinite;
+  }
+  @keyframes gradientShift { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
+  h1,h2,h3 { font-family: 'Fredoka', sans-serif; margin: 0; }
+
+  canvas#confetti { position: fixed; inset: 0; pointer-events: none; z-index: 50; }
+
+  .balloons { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+  .balloon { position: absolute; bottom: -20%; font-size: 2.4rem; animation: floatUp linear infinite; opacity: 0.85; }
+  @keyframes floatUp {
+    0% { transform: translateY(0) translateX(0) rotate(-4deg); }
+    50% { transform: translateY(-55vh) translateX(20px) rotate(4deg); }
+    100% { transform: translateY(-115vh) translateX(-10px) rotate(-4deg); }
+  }
+  .sparkle { position: absolute; font-size: 1.1rem; opacity: 0; animation: sparkle 3.5s ease-in-out infinite; }
+  @keyframes sparkle { 0%,100% { opacity: 0; transform: scale(0.6); } 50% { opacity: 0.9; transform: scale(1.1); } }
+  @media (prefers-reduced-motion: reduce) { .balloon, body, .sparkle { animation: none; } }
+
+  /* ---- Envelope screen (fresh every load/refresh) ---- */
+  #envelopeScreen {
+    position: fixed; inset: 0; z-index: 40; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; text-align: center; padding: 24px;
+    background: linear-gradient(-45deg, #ff9ecb, #ffcf8f, #c9a3ff);
+    background-size: 400% 400%; animation: gradientShift 10s ease infinite;
+    transition: opacity 0.6s ease, visibility 0.6s;
+  }
+  #envelopeScreen.hide { opacity: 0; visibility: hidden; pointer-events: none; }
+  .envelope-emoji { font-size: 5.5rem; animation: wiggle 1.8s ease-in-out infinite; }
+  @keyframes wiggle { 0%,100%{transform:rotate(-6deg)} 50%{transform:rotate(6deg)} }
+  #envelopeScreen h1 { font-size: clamp(1.6rem, 6vw, 2.2rem); color: #6a2350; margin-top: 18px; }
+  #envelopeScreen p { color: #6a2350; font-size: 1.15rem; margin-top: 8px; opacity: 0.85; }
+  .open-btn {
+    margin-top: 30px; border: none; border-radius: 999px; padding: 16px 36px;
+    font-family: 'Fredoka', sans-serif; font-size: 1.15rem; color: #fff;
+    background: linear-gradient(90deg, var(--red), var(--purple));
+    box-shadow: 0 14px 30px -12px rgba(168,44,90,0.55); cursor: pointer;
+    animation: pulse 1.6s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.05)} }
+
+  /* ---- Main content ---- */
+  main { position: relative; z-index: 1; max-width: 640px; margin: 0 auto; padding: 8vh 20px 10vh; opacity: 0; transition: opacity 0.8s ease; }
+  main.show { opacity: 1; }
+  section { margin-bottom: 54px; }
+
+  .hero { text-align: center; }
+  .hero .top-emoji { font-size: 3rem; display: inline-block; animation: bounceIn 0.9s ease; }
+  @keyframes bounceIn { 0%{transform:scale(0)} 60%{transform:scale(1.2)} 100%{transform:scale(1)} }
+  .title { font-size: clamp(2.4rem, 10vw, 3.6rem); color: #7c2358; margin-top: 10px; }
+  .title .amp { color: var(--red); display: inline-block; animation: beat 1.6s ease-in-out infinite; }
+  @keyframes beat { 0%,100% { transform: scale(1); } 25% { transform: scale(1.25); } 40% { transform: scale(1); } }
+  .tagline {
+    margin-top: 14px; font-size: 1.4rem; font-weight: 600; color: #862a5c;
+    background: rgba(255,255,255,0.55); display: inline-block; padding: 8px 22px; border-radius: 999px;
+  }
+
+  .card {
+    background: var(--paper); border-radius: 26px; padding: 30px 24px;
+    box-shadow: 0 20px 45px -22px rgba(120,30,70,0.35);
+    position: relative; overflow: hidden;
+    opacity: 0; transform: translateY(24px); transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .card.in { opacity: 1; transform: translateY(0); }
+
+  h2.section-title { text-align: center; font-size: 1.7rem; color: #7c2358; margin-bottom: 10px; }
+  h2.section-title .emoji { margin: 0 6px; }
+  .section-sub { text-align: center; font-size: 1rem; opacity: 0.75; margin-bottom: 24px; }
+
+  .steps { display: flex; flex-direction: column; gap: 18px; }
+  .step {
+    display: flex; gap: 14px; align-items: flex-start;
+    opacity: 0; transform: translateX(-14px); transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  .card.in .step { opacity: 1; transform: translateX(0); }
+  .card.in .step:nth-child(1) { transition-delay: 0.1s; }
+  .card.in .step:nth-child(2) { transition-delay: 0.28s; }
+  .card.in .step:nth-child(3) { transition-delay: 0.46s; }
+  .step .emoji { font-size: 1.8rem; flex-shrink: 0; }
+  .step h3 { font-size: 1.2rem; color: #862a5c; margin-bottom: 4px; }
+  .step p { margin: 0; font-size: 1.05rem; line-height: 1.6; opacity: 0.9; }
+
+  .message p {
+    font-size: 1.2rem; line-height: 1.8; margin: 0 0 18px;
+    opacity: 0; transform: translateY(10px); transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .card.in .message-body p { opacity: 1; transform: translateY(0); }
+  .card.in .message-body p:nth-child(1) { transition-delay: 0.1s; }
+  .card.in .message-body p:nth-child(2) { transition-delay: 0.35s; }
+  .card.in .message-body p:nth-child(3) { transition-delay: 0.6s; }
+  .card.in .message-body p:nth-child(4) { transition-delay: 0.85s; }
+  .message p:last-child { margin-bottom: 0; }
+  .message .greet { color: var(--red); font-weight: 700; }
+  .signature {
+    margin-top: 20px; text-align: right; font-family: 'Fredoka', sans-serif; color: #862a5c; font-size: 1.5rem;
+    opacity: 0; transition: opacity 0.7s ease 1.05s;
+  }
+  .card.in .signature { opacity: 1; }
+  .signature small { display: block; font-family: 'Quicksand', sans-serif; font-size: 0.95rem; font-weight: 600; opacity: 0.75; }
+
+  .surprise-box { text-align: center; }
+  .surprise-btn {
+    border: none; border-radius: 999px; padding: 16px 34px; font-family: 'Fredoka', sans-serif;
+    font-size: 1.15rem; color: #fff; background: linear-gradient(90deg, #ff8a65, var(--red));
+    box-shadow: 0 14px 30px -12px rgba(255,90,120,0.55); cursor: pointer;
+  }
+  .surprise-btn:active { transform: scale(0.96); }
+  .surprise-note { margin-top: 16px; font-size: 1.1rem; font-weight: 600; color: #862a5c; min-height: 1.4em; }
+
+  /* ---- Quiz ---- */
+  .quiz-q { margin-bottom: 28px; }
+  .quiz-q:last-child { margin-bottom: 0; }
+  .quiz-q h3 { font-size: 1.1rem; color: #862a5c; margin-bottom: 12px; line-height: 1.4; }
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .opt {
+    text-align: left; border: 2px solid rgba(168,44,90,0.18); background: #fff;
+    border-radius: 14px; padding: 12px 16px; font-family: 'Quicksand', sans-serif;
+    font-size: 1rem; font-weight: 600; color: var(--text); cursor: pointer;
+    transition: transform 0.15s ease, border-color 0.2s ease, background 0.2s ease;
+  }
+  .opt:active { transform: scale(0.98); }
+  .opt.correct { background: #e6f7ee; border-color: var(--green); color: #1f7a52; }
+  .opt.wrong { background: #fdeaea; border-color: #e0637a; color: #a8384e; opacity: 0.7; }
+  .opt[disabled] { cursor: default; }
+  .quiz-feedback { margin-top: 10px; font-size: 0.96rem; font-weight: 600; color: var(--green); min-height: 1.4em; }
+
+  /* ---- Gift reveal ---- */
+  .gift-box { text-align: center; }
+  .gift-emoji {
+    font-size: 5rem; cursor: pointer; display: inline-block; user-select: none;
+    transition: transform 0.15s ease;
+  }
+  .gift-emoji.shake { animation: shake 0.5s ease; }
+  @keyframes shake {
+    0%,100% { transform: rotate(0); }
+    20% { transform: rotate(-8deg); }
+    40% { transform: rotate(8deg); }
+    60% { transform: rotate(-6deg); }
+    80% { transform: rotate(6deg); }
+  }
+  .gift-emoji.opened { animation: popOpen 0.5s ease forwards; }
+  @keyframes popOpen { 0% { transform: scale(1); } 50% { transform: scale(1.4); } 100% { transform: scale(1.1); } }
+  .gift-hint { margin-top: 10px; font-size: 0.98rem; opacity: 0.75; }
+  .gift-reveal-text {
+    margin-top: 20px; font-size: 1.15rem; font-weight: 600; color: #862a5c;
+    background: #fff2f6; border-radius: 16px; padding: 18px 20px;
+    max-width: 460px; margin-left: auto; margin-right: auto;
+    opacity: 0; transform: translateY(10px); transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  .gift-reveal-text.show { opacity: 1; transform: translateY(0); }
+
+  /* ---- Puzzle ---- */
+  .puzzle-wrap { display: flex; flex-direction: column; align-items: center; gap: 18px; }
+  .puzzle-tiles {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
+    width: 100%; max-width: 320px;
+  }
+  .tile {
+    aspect-ratio: 1; border: none; border-radius: 12px; cursor: pointer;
+    font-family: 'Fredoka', sans-serif; font-size: 1.3rem; font-weight: 600; color: #fff;
+    background: linear-gradient(135deg, var(--pink), var(--purple));
+    display: flex; align-items: center; justify-content: center;
+    transition: transform 0.15s ease, opacity 0.3s ease;
+  }
+  .tile.picked { opacity: 0.25; transform: scale(0.9); pointer-events: none; }
+  .puzzle-slots {
+    display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;
+    min-height: 46px;
+  }
+  .slot {
+    width: 40px; height: 40px; border-radius: 10px; border: 2px dashed rgba(168,44,90,0.3);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Fredoka', sans-serif; font-weight: 600; color: #862a5c;
+    background: #fff;
+  }
+  .puzzle-msg { font-size: 0.98rem; font-weight: 600; color: var(--text); text-align: center; min-height: 1.4em; }
+  .puzzle-result {
+    text-align: center; font-size: 1.15rem; font-weight: 600; color: #862a5c;
+    background: #fff2f6; border-radius: 16px; padding: 18px 20px; margin-top: 6px;
+    opacity: 0; transform: translateY(10px); transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  .puzzle-result.show { opacity: 1; transform: translateY(0); }
+  .puzzle-reset {
+    border: none; background: none; color: #862a5c; font-family: 'Quicksand', sans-serif;
+    font-weight: 700; text-decoration: underline; cursor: pointer; font-size: 0.95rem;
+  }
+
+  /* ---- Love meter ---- */
+  .meter-wrap { text-align: center; }
+  .meter-track {
+    width: 100%; max-width: 420px; height: 26px; margin: 0 auto;
+    background: #f4dce6; border-radius: 999px; overflow: hidden; position: relative;
+  }
+  .meter-fill {
+    height: 100%; width: 0%; border-radius: 999px;
+    background: linear-gradient(90deg, var(--red), var(--pink), var(--gold));
+    transition: width 2s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .meter-label { margin-top: 14px; font-size: 1.6rem; font-weight: 700; color: #862a5c; font-family: 'Fredoka', sans-serif; }
+  .meter-caption { margin-top: 6px; font-size: 1.02rem; opacity: 0.8; }
+
+  footer { text-align: center; }
+  .footer-emoji { font-size: 2.2rem; animation: bounceIn 1s ease; }
+  footer p { margin-top: 10px; font-size: 1.15rem; font-weight: 700; color: #7c2358; }
+</style>
+</head>
+<body>
+
+<canvas id="confetti"></canvas>
+<div class="balloons" id="balloons"></div>
+
+<div id="envelopeScreen">
+  <div class="envelope-emoji">💌</div>
+  <h1>Kokab ke liye ek surprise hai!</h1>
+  <p>Tap karke khol lo 👇</p>
+  <button class="open-btn" id="openBtn">Khol kar dekho 🎉</button>
+</div>
+
+<main id="mainContent">
+
+  <section class="hero">
+    <div class="top-emoji">🎉💍🎊</div>
+    <h1 class="title">Bilal<span class="amp"> &amp; </span>Kokab</h1>
+    <p class="tagline">Nikaah Mubarak! ✨</p>
+  </section>
+
+  <section class="card reveal">
+    <h2 class="section-title"><span class="emoji">💫</span>Hamara Safar<span class="emoji">💫</span></h2>
+    <div class="steps">
+      <div class="step">
+        <span class="emoji">👀</span>
+        <div><h3>Mulaqat</h3><p>Do alag zindagiyan mili, aur wahin se kahani shuru hui.</p></div>
+      </div>
+      <div class="step">
+        <span class="emoji">💞</span>
+        <div><h3>Rishta</h3><p>Dil mila, baat badhi, aur saath rehne ka faisla ho gaya.</p></div>
+      </div>
+      <div class="step">
+        <span class="emoji">💍</span>
+        <div><h3>Nikaah</h3><p>Do dilon ka pyara vaada — ab hamesha ke liye ek! 🥳</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card message reveal">
+    <span class="sparkle" style="top:14px; right:22px; animation-delay:0.3s;">✨</span>
+    <span class="sparkle" style="bottom:18px; left:18px; animation-delay:1.4s;">💫</span>
+    <h2 class="section-title"><span class="emoji">💌</span>Ek Paigham Tumhare Liye<span class="emoji">💌</span></h2>
+    <div class="message-body">
+      <p class="greet">Kokab,</p>
+      <p>Jis din tumhara haath mera haath bana, us din se meri duniya hi badal gayi. Tum sirf meri biwi nahi ho, meri sabse pyari dost, meri himmat, aur meri sabse khoobsurat dua ho. 🏡❤️</p>
+      <p>Nikaah ke baad har roz mujhe ye ehsaas hota hai ki Allah ne mujh par kitna bada karam kiya hai tumhe meri zindagi mein bhej kar. Tumhari muskurahat mere din ki sabse achhi shuruaat hai, aur tumhara saath meri sabse badi taqat. 💍✨</p>
+      <p>Bilal aur Kokab — do naam, ek dil, ek ghar, aur ek hi vaada: har haal mein saath, har mausam mein pyaar. Tumhare bina meri kahani adhoori thi, aur ab har agla panna tumhare naam hai. 📖💗</p>
+      <p>Tumse pyaar karta hoon, aaj bhi, kal bhi, aur hamesha. 🥰</p>
+    </div>
+    <div class="signature">Bilal <small>tumhara, hamesha ke liye</small></div>
+  </section>
+
+  <section class="surprise-box reveal">
+    <button class="surprise-btn" id="surpriseBtn">Ek Surprise Bhejo 🎊</button>
+    <p class="surprise-note" id="surpriseNote"></p>
+  </section>
+
+  <section class="card gift-box reveal">
+    <h2 class="section-title"><span class="emoji">🎁</span>Ek Chhota Sa Tohfa<span class="emoji">🎁</span></h2>
+    <p class="section-sub">Tap karke gift khol lo</p>
+    <div class="gift-emoji" id="giftEmoji">🎁</div>
+    <p class="gift-hint" id="giftHint">Tap karo</p>
+    <div class="gift-reveal-text" id="giftText">
+      Ye tohfa hai ek vaada: ek date night sirf hamare naam, ek surprise trip jab bhi tum kaho, aur roz ki chhoti-chhoti khushiyan — sirf tumhare liye. 💝
+    </div>
+  </section>
+
+  <section class="card reveal">
+    <h2 class="section-title"><span class="emoji">🧩</span>Ek Chhota Puzzle<span class="emoji">🧩</span></h2>
+    <p class="section-sub">Tiles ko sahi tarteeb mein tap karo aur ek chhupa hua message khol lo</p>
+    <div class="puzzle-wrap">
+      <div class="puzzle-slots" id="puzzleSlots"></div>
+      <div class="puzzle-tiles" id="puzzleTiles"></div>
+      <p class="puzzle-msg" id="puzzleMsg">Sahi tarteeb mein tap karo: T-U-M-H-A-R-A</p>
+      <div class="puzzle-result" id="puzzleResult">Tumhara, hamesha ke liye — Bilal 💗</div>
+      <button class="puzzle-reset" id="puzzleReset" style="display:none;">Dobara try karo</button>
+    </div>
+  </section>
+
+  <section class="card meter-wrap reveal">
+    <h2 class="section-title"><span class="emoji">📊</span>Love Meter<span class="emoji">📊</span></h2>
+    <p class="section-sub">Bilal ka Kokab ke liye pyaar</p>
+    <div class="meter-track"><div class="meter-fill" id="meterFill"></div></div>
+    <p class="meter-label" id="meterLabel">0%</p>
+    <p class="meter-caption">Har baar 100% hi aata hai — kam ho hi nahi sakta 😄</p>
+  </section>
+
+  <section class="card reveal">
+    <h2 class="section-title"><span class="emoji">💑</span>Rishta Quiz<span class="emoji">💑</span></h2>
+    <p class="section-sub">Ek achhe rishte ki buniyaad ke baare mein 😊</p>
+
+    <div class="quiz-q" data-correct="1">
+      <h3>1. Ek achhe rishte ki sabse badi buniyaad kya hai?</h3>
+      <div class="options">
+        <button class="opt">Paisa aur shaan-shaukat</button>
+        <button class="opt">Pyaar, izzat aur samajh</button>
+        <button class="opt">Har baat mein jeetna</button>
+        <button class="opt">Sirf dikhava</button>
+      </div>
+      <p class="quiz-feedback"></p>
+    </div>
+
+    <div class="quiz-q" data-correct="0">
+      <h3>2. Paison ke maamle mein sabse achha tareeka kya hai?</h3>
+      <div class="options">
+        <button class="opt">Mil kar khule dil se faisla lena</button>
+        <button class="opt">Ek doosre se chhupana</button>
+        <button class="opt">Akela sab decide karna</button>
+        <button class="opt">Isse door hi rehna</button>
+      </div>
+      <p class="quiz-feedback"></p>
+    </div>
+
+    <div class="quiz-q" data-correct="2">
+      <h3>3. Mushkil waqt mein partner ko sabse zyada kya dena chahiye?</h3>
+      <div class="options">
+        <button class="opt">Taane</button>
+        <button class="opt">Ignore karna</button>
+        <button class="opt">Support aur hosla</button>
+        <button class="opt">Shikayat</button>
+      </div>
+      <p class="quiz-feedback"></p>
+    </div>
+
+    <div class="quiz-q" data-correct="1">
+      <h3>4. Rishta lambe samay tak mazboot rehne ke liye kya zaroori hai?</h3>
+      <div class="options">
+        <button class="opt">Ek doosre par shaq karna</button>
+        <button class="opt">Khulkar baat karna aur bharosa</button>
+        <button class="opt">Har cheez chhupana</button>
+        <button class="opt">Compete karte rehna</button>
+      </div>
+      <p class="quiz-feedback"></p>
+    </div>
+  </section>
+
+  <section class="card reveal">
+    <h2 class="section-title"><span class="emoji">😄</span>Hum Dono Ko Kitna Pata Hai?<span class="emoji">😄</span></h2>
+    <p class="section-sub">Ek chhota mazedaar round, sirf hansi-khushi ke liye!</p>
+
+    <div class="quiz-q" data-correct="0">
+      <h3>1. Bilal aur Kokab ki pehchaan sabse zyada kis baat se hai?</h3>
+      <div class="options">
+        <button class="opt">Ek doosre ka saath</button>
+        <button class="opt">Alag-alag rehna</button>
+        <button class="opt">Jhagda karna</button>
+        <button class="opt">Kabhi baat na karna</button>
+      </div>
+      <p class="quiz-feedback"></p>
+    </div>
+
+    <div class="quiz-q" data-correct="0">
+      <h3>2. Din ka sabse pyara pal kaunsa hota hai?</h3>
+      <div class="options">
+        <button class="opt">Roz ki chhoti-chhoti baatien</button>
+        <button class="opt">Akela rehna</button>
+        <button class="opt">Phone mein busy rehna</button>
+        <button class="opt">Kabhi na milna</button>
+      </div>
+      <p class="quiz-feedback"></p>
+    </div>
+
+    <div class="quiz-q" data-correct="2">
+      <h3>3. Kokab ke liye Bilal kya hai?</h3>
+      <div class="options">
+        <button class="opt">Sirf ek naam</button>
+        <button class="opt">Kabhi kabhi ka saathi</button>
+        <button class="opt">Uski taqat aur uska sabse pyara dost</button>
+        <button class="opt">Anjaan shaks</button>
+      </div>
+      <p class="quiz-feedback"></p>
+    </div>
+
+    <div class="quiz-q" data-correct="1">
+      <h3>4. Bilal ke liye Kokab kya hai?</h3>
+      <div class="options">
+        <button class="opt">Bas ek rasm</button>
+        <button class="opt">Uski dua aur uska ghar</button>
+        <button class="opt">Kuch nahi khaas</button>
+        <button class="opt">Sirf ek din ki baat</button>
+      </div>
+      <p class="quiz-feedback"></p>
+    </div>
+  </section>
+
+  <section class="card reveal">
+    <h2 class="section-title"><span class="emoji">🤍</span>Husband Ke Liye Pyaar<span class="emoji">🤍</span></h2>
+    <p class="section-sub">Ek khush ghar banane wali chhoti par pyari baatein</p>
+
+    <div class="quiz-q" data-correct="0">
+      <h3>1. Pati ki sabse zyada care kis tarah honi chahiye?</h3>
+      <div class="options">
+        <button class="opt">Uski baat sunna aur samajhna</button>
+        <button class="opt">Uski galtiyan gina te rehna</button>
+        <button class="opt">Use ignore karna</button>
+        <button class="opt">Uspe shak karna</button>
+      </div>
+      <p class="quiz-feedback"></p>
+    </div>
+
+    <div class="quiz-q" data-correct="0">
+      <h3>2. Rishta mazboot banane ke liye kya kar sakte hain?</h3>
+      <div class="options">
+        <button class="opt">Ek doosre ko support aur encourage karna</button>
+        <button class="opt">Dusron se compare karna</button>
+        <button class="opt">Chhoti baaton pe jhagda karna</button>
+        <button class="opt">Ek doosre se compete karna</button>
+      </div>
+      <p class="quiz-feedback"></p>
+    </div>
+
+    <div class="quiz-q" data-correct="0">
+      <h3>3. Mushkil waqt mein pati ko sabse zyada kya chahiye hota hai?</h3>
+      <div class="options">
+        <button class="opt">Saath aur hosla</button>
+        <button class="opt">Taunt</button>
+        <button class="opt">Doosron se comparison</button>
+        <button class="opt">Ignore kiya jaana</button>
+      </div>
+      <p class="quiz-feedback"></p>
+    </div>
+
+    <div class="quiz-q" data-correct="0">
+      <h3>4. Ek khush aur mazboot ghar banane ke liye sabse zaroori kya hai?</h3>
+      <div class="options">
+        <button class="opt">Pyaar, sabr aur samajhdari</button>
+        <button class="opt">Sirf paisa</button>
+        <button class="opt">Dikhava</button>
+        <button class="opt">Ego</button>
+      </div>
+      <p class="quiz-feedback"></p>
+    </div>
+  </section>
+
+  <footer class="reveal">
+    <div class="footer-emoji">🎉❤️🎊</div>
+    <p>Nikaah Mubarak, Bilal &amp; Kokab!</p>
+  </footer>
+
+</main>
+
+<script>
+  // Floating balloons
+  (function(){
+    var wrap = document.getElementById('balloons');
+    var emojis = ['🎈','💗','✨','🎊'];
+    var count = window.innerWidth < 480 ? 9 : 14;
+    for (var i = 0; i < count; i++) {
+      var b = document.createElement('div');
+      b.className = 'balloon';
+      b.textContent = emojis[i % emojis.length];
+      b.style.left = Math.random() * 100 + 'vw';
+      b.style.animationDuration = (10 + Math.random() * 9) + 's';
+      b.style.animationDelay = (Math.random() * 8) + 's';
+      wrap.appendChild(b);
+    }
+  })();
+
+  // Confetti engine
+  var confettiCanvas = document.getElementById('confetti');
+  var ctx = confettiCanvas.getContext('2d');
+  function resize(){ confettiCanvas.width = window.innerWidth; confettiCanvas.height = window.innerHeight; }
+  resize(); window.addEventListener('resize', resize);
+  var particles = [];
+  var colors = ['#ff6fa3','#ffc84a','#a86bf7','#ff9ecb','#6fe0c8'];
+  function burstConfetti(n, originY){
+    for (var i = 0; i < n; i++) {
+      particles.push({
+        x: confettiCanvas.width/2 + (Math.random()-0.5)*80,
+        y: originY || confettiCanvas.height*0.35,
+        vx: (Math.random()-0.5) * 10,
+        vy: Math.random() * -10 - 4,
+        size: 5 + Math.random()*5,
+        color: colors[Math.floor(Math.random()*colors.length)],
+        rot: Math.random()*360,
+        vrot: (Math.random()-0.5)*10,
+        life: 0
+      });
+    }
+  }
+  function tick(){
+    ctx.clearRect(0,0,confettiCanvas.width, confettiCanvas.height);
+    particles.forEach(function(p){
+      p.vy += 0.35; p.x += p.vx; p.y += p.vy; p.rot += p.vrot; p.life++;
+      ctx.save();
+      ctx.translate(p.x, p.y); ctx.rotate(p.rot * Math.PI/180);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.size/2, -p.size/2, p.size, p.size*0.6);
+      ctx.restore();
+    });
+    particles = particles.filter(function(p){ return p.y < confettiCanvas.height + 40 && p.life < 300; });
+    requestAnimationFrame(tick);
+  }
+  tick();
+
+  // Envelope open — runs fresh every page load/refresh, no stored state
+  document.getElementById('openBtn').addEventListener('click', function(){
+    document.getElementById('envelopeScreen').classList.add('hide');
+    document.getElementById('mainContent').classList.add('show');
+    burstConfetti(140);
+  });
+
+  // Surprise button
+  var notes = ['Bhej diya! 💌','Kokab tak pahunch gaya! 💗','Ek aur pyaar bhara surprise! 🎊','Dher sara pyaar tumhare liye! 🥰'];
+  var tapCount = 0;
+  document.getElementById('surpriseBtn').addEventListener('click', function(){
+    burstConfetti(90);
+    var note = document.getElementById('surpriseNote');
+    note.textContent = notes[tapCount % notes.length];
+    tapCount++;
+  });
+
+  // Scroll reveal for cards/sections (staggered children handled via CSS)
+  (function(){
+    var els = document.querySelectorAll('.reveal');
+    if ('IntersectionObserver' in window) {
+      var obs = new IntersectionObserver(function(entries){
+        entries.forEach(function(e){
+          if (e.isIntersecting) { e.target.classList.add('in'); obs.unobserve(e.target); }
+        });
+      }, { threshold: 0.12 });
+      els.forEach(function(el){ obs.observe(el); });
+    } else {
+      els.forEach(function(el){ el.classList.add('in'); });
+    }
+  })();
+
+  // Quiz logic (works for all quiz sections)
+  (function(){
+    var questions = document.querySelectorAll('.quiz-q');
+    questions.forEach(function(q){
+      var correctIdx = parseInt(q.getAttribute('data-correct'), 10);
+      var opts = q.querySelectorAll('.opt');
+      var feedback = q.querySelector('.quiz-feedback');
+      opts.forEach(function(btn, idx){
+        btn.addEventListener('click', function(){
+          opts.forEach(function(b){ b.disabled = true; });
+          if (idx === correctIdx) {
+            btn.classList.add('correct');
+            feedback.textContent = 'Bilkul sahi! 💚';
+            var rect = q.getBoundingClientRect();
+            burstConfetti(45, rect.top + 40);
+          } else {
+            btn.classList.add('wrong');
+            opts[correctIdx].classList.add('correct');
+            feedback.textContent = 'Koi baat nahi — sahi jawab highlight ho gaya 😊';
+          }
+        });
+      });
+    });
+  })();
+
+  // Gift reveal
+  (function(){
+    var gift = document.getElementById('giftEmoji');
+    var hint = document.getElementById('giftHint');
+    var text = document.getElementById('giftText');
+    var opened = false;
+    gift.addEventListener('click', function(){
+      if (opened) return;
+      opened = true;
+      gift.classList.add('shake');
+      setTimeout(function(){
+        gift.classList.remove('shake');
+        gift.classList.add('opened');
+        gift.textContent = '🎉';
+        hint.textContent = 'Kholi gayi! 🎁';
+        text.classList.add('show');
+        var rect = gift.getBoundingClientRect();
+        burstConfetti(80, rect.top);
+      }, 500);
+    });
+  })();
+
+  // Puzzle: tap letters in order to spell TUMHARA
+  (function(){
+    var word = ['T','U','M','H','A','R','A'];
+    var tilesWrap = document.getElementById('puzzleTiles');
+    var slotsWrap = document.getElementById('puzzleSlots');
+    var msg = document.getElementById('puzzleMsg');
+    var result = document.getElementById('puzzleResult');
+    var resetBtn = document.getElementById('puzzleReset');
+    var progress = 0;
+    var shuffled = [];
+
+    function shuffle(arr){
+      var a = arr.slice();
+      for (var i = a.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var t = a[i]; a[i] = a[j]; a[j] = t;
+      }
+      return a;
+    }
+
+    function buildSlots(){
+      slotsWrap.innerHTML = '';
+      word.forEach(function(){
+        var s = document.createElement('div');
+        s.className = 'slot';
+        slotsWrap.appendChild(s);
+      });
+    }
+
+    function buildTiles(){
+      tilesWrap.innerHTML = '';
+      shuffled = shuffle(word.map(function(letter, i){ return { letter: letter, id: i }; }));
+      shuffled.forEach(function(item){
+        var btn = document.createElement('button');
+        btn.className = 'tile';
+        btn.textContent = item.letter;
+        btn.dataset.id = item.id;
+        btn.addEventListener('click', function(){
+          if (btn.classList.contains('picked')) return;
+          if (item.id === progress) {
+            btn.classList.add('picked');
+            var slot = slotsWrap.children[progress];
+            slot.textContent = item.letter;
+            progress++;
+            if (progress === word.length) {
+              msg.textContent = 'Shabaash! 🎉';
+              result.classList.add('show');
+              resetBtn.style.display = 'inline-block';
+              var rect = tilesWrap.getBoundingClientRect();
+              burstConfetti(100, rect.top);
+            }
+          } else {
+            btn.classList.add('shake-wrong');
+            btn.style.transform = 'translateX(-4px)';
+            setTimeout(function(){ btn.style.transform = ''; btn.classList.remove('shake-wrong'); }, 200);
+          }
+        });
+        tilesWrap.appendChild(btn);
+      });
+    }
+
+    function resetPuzzle(){
+      progress = 0;
+      result.classList.remove('show');
+      resetBtn.style.display = 'none';
+      msg.textContent = 'Sahi tarteeb mein tap karo: T-U-M-H-A-R-A';
+      buildSlots();
+      buildTiles();
+    }
+
+    resetBtn.addEventListener('click', resetPuzzle);
+    resetPuzzle();
+  })();
+
+  // Love meter — always animates to 100%
+  (function(){
+    var fill = document.getElementById('meterFill');
+    var label = document.getElementById('meterLabel');
+    var el = fill.closest('section');
+    var animated = false;
+    function run(){
+      if (animated) return;
+      animated = true;
+      requestAnimationFrame(function(){ fill.style.width = '100%'; });
+      var start = null;
+      function step(ts){
+        if (!start) start = ts;
+        var progress = Math.min((ts - start) / 2000, 1);
+        label.textContent = Math.round(progress * 100) + '%';
+        if (progress < 1) requestAnimationFrame(step);
+        else label.textContent = '100%';
+      }
+      requestAnimationFrame(step);
+    }
+    if ('IntersectionObserver' in window) {
+      var obs = new IntersectionObserver(function(entries){
+        entries.forEach(function(e){ if (e.isIntersecting) { run(); obs.unobserve(e.target); } });
+      }, { threshold: 0.4 });
+      obs.observe(el);
+    } else {
+      run();
+    }
+  })();
+</script>
+
+</body>
+</html>
